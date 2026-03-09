@@ -108,14 +108,23 @@ kill $(cat /var/run/ovh-monitor.pid)
 | `run-ovh-monitor.sh` | Cron wrapper with pidfile lock |
 | `.env.ovh-monitor` | Credentials (gitignored) |
 | `.env.ovh-monitor.example` | Example credentials template |
+| `logrotate.conf` | Log rotation config (copy to `/etc/logrotate.d/ovh-monitor`) |
 | `venv/` | Python virtual environment |
+
+### Log rotation
+
+Copy the included logrotate config to enable daily log rotation (7 days retained):
+
+```bash
+sudo cp logrotate.conf /etc/logrotate.d/ovh-monitor
+```
 
 ## Slack notifications
 
-Notifications are sent to the configured Slack webhook. The webhook URL is hardcoded in `monitor-ovh-servers.py` — update the `SLACK_WEBHOOK_URL` variable if needed.
+Notifications are sent to the configured Slack webhook URL set in `.env.ovh-monitor`.
 
 Message types:
-- Monitor started/stopped
-- Server unreachable — reboot triggered
+- Server unreachable (first failure + updates every 30s)
+- Reboot triggered
 - Reboot API call failed
 - Server back online (with downtime duration)
