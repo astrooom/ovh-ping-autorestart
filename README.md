@@ -17,9 +17,9 @@ Go to the token creation page for your region:
 
 | Region | URL |
 |--------|-----|
-| US (OVHcloud US) | https://api.us.ovh.com/createToken/ |
-| Europe | https://eu.api.ovh.com/createToken/ |
-| Canada | https://ca.api.ovh.com/createToken/ |
+| US (OVHcloud US) | https://api.us.ovhcloud.com/createToken/ |
+| Europe | https://eu.api.ovhcloud.com/createToken/ |
+| Canada | https://ca.api.ovhcloud.com/createToken/ |
 
 Fill in the form:
 - **Account ID / Password** — your OVH account login
