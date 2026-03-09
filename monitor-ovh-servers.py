@@ -39,7 +39,7 @@ SERVERS = [
 
 # Monitoring thresholds
 PING_INTERVAL = 5        # seconds between pings
-FAIL_THRESHOLD = 60      # seconds of failed pings before reboot
+FAIL_THRESHOLD = 120     # seconds of failed pings before reboot
 COOLDOWN_AFTER_REBOOT = 600  # seconds to wait after triggering reboot
 
 # ─── Logging ─────────────────────────────────────────────────────────────────
@@ -125,6 +125,13 @@ def monitor_server(client, display_name, service_name, ip):
 
             if not was_down:
                 was_down = True
+                slack_notify(
+                    f":warning: *{display_name}* (`{ip}`) is not responding to ping"
+                )
+            elif consecutive_failures % 6 == 0:  # every 30s
+                slack_notify(
+                    f":warning: *{display_name}* (`{ip}`) still unreachable — {elapsed}s / {FAIL_THRESHOLD}s until auto-reboot"
+                )
 
             if consecutive_failures >= max_failures:
                 msg = (
@@ -176,10 +183,6 @@ def main():
         log.error(f"Failed to initialize OVH API client: {e}")
         sys.exit(1)
 
-    slack_notify(
-        f":satellite: OVH server monitor started — watching {len(SERVERS)} server(s)"
-    )
-
     # Launch a monitoring thread per server
     threads = []
     for display_name, service_name, ip in SERVERS:
@@ -197,7 +200,6 @@ def main():
             time.sleep(60)
     except KeyboardInterrupt:
         log.info("Shutting down")
-        slack_notify(":octagonal_sign: OVH server monitor stopped")
 
 
 if __name__ == "__main__":
