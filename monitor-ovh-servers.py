@@ -40,7 +40,7 @@ SERVERS = [
 # Monitoring thresholds
 PING_INTERVAL = 5        # seconds between pings
 FAIL_THRESHOLD = 60      # seconds of failed pings before reboot
-COOLDOWN_AFTER_REBOOT = 300  # seconds to wait after triggering reboot
+COOLDOWN_AFTER_REBOOT = 600  # seconds to wait after triggering reboot
 
 # ─── Logging ─────────────────────────────────────────────────────────────────
 
