@@ -1,4 +1,5 @@
 .env.ovh-monitor
+!.env.ovh-monitor.example
 venv/
 __pycache__/
 *.pyc
