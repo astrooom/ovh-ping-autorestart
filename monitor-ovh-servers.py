@@ -33,7 +33,11 @@ SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 
 # Servers to monitor: (display_name, service_name, ip)
 SERVERS = [
+    ("GAME-O-HIL1-1003124-US", "ns1003124.ip-51-81-242.us", "51.81.242.241"),
+    ("GAME-O-HIL1-1000313-US", "ns1000313.ip-51-81-242.us", "51.81.242.78"),
     ("GAME-O-HIL1-1018625-US", "ns1018625.ip-15-204-44.us", "15.204.44.62"),
+    ("GAME-O-HIL1-1018636-US", "ns1018636.ip-15-204-44.us", "15.204.44.73"),
+    ("GAME-O-HIL1-1010252-US", "ns1010252.ip-51-81-166.us", "51.81.166.201"),
     ("GAME-O-HIL1-1020759-US", "ns1020759.ip-15-204-44.us", "15.204.44.142"),
 ]
 
