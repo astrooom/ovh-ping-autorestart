@@ -13,14 +13,18 @@ set -a
 source "$DIR/.env.ovh-monitor"
 set +a
 
-# Check if already running
+# Check if already running (pidfile + process name check)
 if [ -f "$PIDFILE" ]; then
     pid=$(cat "$PIDFILE")
     if kill -0 "$pid" 2>/dev/null; then
         exit 0
     fi
-    # Stale pidfile, remove it
     rm -f "$PIDFILE"
+fi
+
+# Extra safety: check if any instance is running by process name
+if pgrep -f "monitor-ovh-servers.py" > /dev/null 2>&1; then
+    exit 0
 fi
 
 # Start monitor
