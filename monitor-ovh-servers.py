@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 OVH Dedicated Server Monitor
-Monitors servers via ping and triggers OVH API reboot if unreachable for 60 seconds.
+Monitors servers via ping and triggers OVH API reboot if unreachable.
 Sends Slack notifications on state changes and reboots.
 """
 
@@ -105,30 +105,30 @@ def monitor_server(client, display_name, service_name, ip):
     """Monitoring loop for a single server."""
     consecutive_failures = 0
     max_failures = FAIL_THRESHOLD // PING_INTERVAL
-    was_down = False
+    down_since = None
 
     log.info(f"[{display_name}] Monitoring {ip} (reboot after {FAIL_THRESHOLD}s down)")
 
     while True:
         if ping(ip):
-            if was_down:
-                elapsed = consecutive_failures * PING_INTERVAL
-                msg = f":white_check_mark: *{display_name}* (`{ip}`) is back online after ~{elapsed}s of downtime"
-                log.info(f"[{display_name}] Back online")
+            if down_since is not None:
+                downtime = int((datetime.now() - down_since).total_seconds())
+                msg = f":white_check_mark: *{display_name}* (`{ip}`) is back online after ~{downtime}s of downtime"
+                log.info(f"[{display_name}] Back online after {downtime}s")
                 slack_notify(msg)
-                was_down = False
+                down_since = None
             consecutive_failures = 0
         else:
             consecutive_failures += 1
             elapsed = consecutive_failures * PING_INTERVAL
             log.warning(f"[{display_name}] Ping failed ({elapsed}/{FAIL_THRESHOLD}s)")
 
-            if not was_down:
-                was_down = True
+            if down_since is None:
+                down_since = datetime.now()
                 slack_notify(
                     f":warning: *{display_name}* (`{ip}`) is not responding to ping"
                 )
-            elif consecutive_failures % 6 == 0:  # every 30s
+            elif consecutive_failures % 6 == 0 and consecutive_failures < max_failures:
                 slack_notify(
                     f":warning: *{display_name}* (`{ip}`) still unreachable — {elapsed}s / {FAIL_THRESHOLD}s until auto-reboot"
                 )
