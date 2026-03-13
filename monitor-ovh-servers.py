@@ -129,10 +129,12 @@ def monitor_server(client, display_name, service_name, ip):
 
             if down_since is None:
                 down_since = datetime.now()
+
+            if consecutive_failures == 6:  # first alert at 30s
                 slack_notify(
-                    f":warning: *{display_name}* (`{ip}`) is not responding to ping"
+                    f":warning: *{display_name}* (`{ip}`) is not responding to ping ({elapsed}s)"
                 )
-            elif consecutive_failures % 6 == 0 and consecutive_failures < max_failures:
+            elif consecutive_failures > 6 and consecutive_failures % 6 == 0 and consecutive_failures < max_failures:
                 slack_notify(
                     f":warning: *{display_name}* (`{ip}`) still unreachable — {elapsed}s / {FAIL_THRESHOLD}s until auto-reboot"
                 )
