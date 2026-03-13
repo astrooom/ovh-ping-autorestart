@@ -33,12 +33,26 @@ SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 
 # Servers to monitor: (display_name, service_name, ip)
 SERVERS = [
+    # HIL1 (Hillsboro, US)
     ("GAME-O-HIL1-1003124-US", "ns1003124.ip-51-81-242.us", "51.81.242.241"),
     ("GAME-O-HIL1-1000313-US", "ns1000313.ip-51-81-242.us", "51.81.242.78"),
     ("GAME-O-HIL1-1018625-US", "ns1018625.ip-15-204-44.us", "15.204.44.62"),
     ("GAME-O-HIL1-1018636-US", "ns1018636.ip-15-204-44.us", "15.204.44.73"),
     ("GAME-O-HIL1-1010252-US", "ns1010252.ip-51-81-166.us", "51.81.166.201"),
     ("GAME-O-HIL1-1020759-US", "ns1020759.ip-15-204-44.us", "15.204.44.142"),
+    # VIN1 (Vint Hill, US)
+    ("GAME-O-VIN1-1010845-US", "ns1010845.ip-135-148-137.us", "135.148.137.108"),
+    ("GAME-O-VIN1-1010854-US", "ns1010854.ip-135-148-137.us", "135.148.137.117"),
+    ("GAME-O-VIN1-1011516-US", "ns1011516.ip-135-148-137.us", "135.148.137.212"),
+    ("GAME-O-VIN1-1016527-US", "ns1016527.ip-15-204-180.us", "15.204.180.39"),
+    ("GAME-O-VIN1-1016533-US", "ns1016533.ip-15-204-180.us", "15.204.180.45"),
+    # BHS7 (Beauharnois, CA)
+    ("GAME-O-BHS7-576737-CA", "ns576737.ip-51-222-82.ca", "51.222.82.212"),
+    # SGP3 (Singapore)
+    ("GAME-O-SGP3-5034936-AS", "ns5034936.ip-15-235-226.as", "15.235.226.158"),
+    ("GAME-O-SGP3-5028484-AS", "ns5028484.ip-15-235-216.as", "15.235.216.82"),
+    # IN1 (India)
+    ("GAME-O-IN1-5020795-AS", "ns5020795.ip-148-113-1.as", "148.113.1.61"),
 ]
 
 # Monitoring thresholds
@@ -129,15 +143,6 @@ def monitor_server(client, display_name, service_name, ip):
 
             if down_since is None:
                 down_since = datetime.now()
-
-            if consecutive_failures == 6:  # first alert at 30s
-                slack_notify(
-                    f":warning: *{display_name}* (`{ip}`) is not responding to ping ({elapsed}s)"
-                )
-            elif consecutive_failures > 6 and consecutive_failures % 6 == 0 and consecutive_failures < max_failures:
-                slack_notify(
-                    f":warning: *{display_name}* (`{ip}`) still unreachable — {elapsed}s / {FAIL_THRESHOLD}s until auto-reboot"
-                )
 
             if consecutive_failures >= max_failures:
                 msg = (
