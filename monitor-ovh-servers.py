@@ -123,26 +123,23 @@ def monitor_server(client, display_name, service_name, ip):
     """Monitoring loop for a single server."""
     consecutive_failures = 0
     max_failures = FAIL_THRESHOLD // PING_INTERVAL
-    down_since = None
+    rebooted = False
 
     log.info(f"[{display_name}] Monitoring {ip} (reboot after {FAIL_THRESHOLD}s down)")
 
     while True:
         if ping(ip):
-            if down_since is not None:
-                downtime = int((datetime.now() - down_since).total_seconds())
-                msg = f":white_check_mark: *{display_name}* (`{ip}`) is back online after ~{downtime}s of downtime"
-                log.info(f"[{display_name}] Back online after {downtime}s")
-                slack_notify(msg)
-                down_since = None
+            if rebooted:
+                log.info(f"[{display_name}] Back online after reboot")
+                slack_notify(
+                    f":white_check_mark: *{display_name}* (`{ip}`) is back online after reboot"
+                )
+                rebooted = False
             consecutive_failures = 0
         else:
             consecutive_failures += 1
             elapsed = consecutive_failures * PING_INTERVAL
             log.warning(f"[{display_name}] Ping failed ({elapsed}/{FAIL_THRESHOLD}s)")
-
-            if down_since is None:
-                down_since = datetime.now()
 
             if consecutive_failures >= max_failures:
                 msg = (
@@ -152,6 +149,7 @@ def monitor_server(client, display_name, service_name, ip):
                 slack_notify(msg)
 
                 if reboot_server(client, service_name):
+                    rebooted = True
                     log.info(f"[{display_name}] Reboot triggered, waiting {COOLDOWN_AFTER_REBOOT}s cooldown")
                     slack_notify(
                         f":arrows_counterclockwise: *{display_name}* reboot command sent. Waiting {COOLDOWN_AFTER_REBOOT // 60}min for server to come back."
